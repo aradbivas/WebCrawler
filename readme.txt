@@ -1,6 +1,6 @@
 to run the crawler:
 
-1.git clone  
+1.git clone https://github.com/aradbivas/WebCrawler.git
 
 2.git install axios cheerio
 
