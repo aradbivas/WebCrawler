@@ -1,0 +1,54 @@
+const axios = require('axios');
+const cheerio = require('cheerio');
+const fs = require('fs');
+
+const args = process.argv.slice(2);
+
+const URL = args[0];
+const DEPTH = args[1] || 1;
+
+const results = {
+  results: []
+};
+
+async function crawl(url, depth) {
+  if (depth > DEPTH) {
+    return;
+  }
+
+  try {
+    const response = await axios.get(url);
+    const $ = cheerio.load(response.data);
+
+    $('img').each((i, el) => {
+      const imageUrl = $(el).attr('src');
+
+      if (imageUrl) {
+        results.results.push({
+          imageUrl,
+          sourceUrl: url,
+          depth
+        });
+      }
+    });
+
+    $('a').each((i, el) => {
+      const link = $(el).attr('href');
+
+      if (link && link.startsWith('http')) {
+        crawl(link, depth + 1);
+      }
+    });
+  } catch (error) {
+    console.error(`Failed to crawl ${url}`, error);
+  }
+}
+
+crawl(URL, 0)
+  .then(() => {
+    const json = JSON.stringify(results, null, 2);
+    fs.writeFileSync('results.json', json, 'utf-8');
+  })
+  .catch((error) => {
+    console.error(`Failed to crawl ${URL}`, error);
+  });
