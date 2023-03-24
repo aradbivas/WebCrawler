@@ -1,6 +1,6 @@
 to run the crawler:
 
-1.git clown ... 
+1.git clone  
 
 2.git install axios cheerio
 
